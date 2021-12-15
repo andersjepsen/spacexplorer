@@ -1,0 +1,17 @@
+overwrite: true
+schema:
+  - ${NEXT_PUBLIC_API}
+documents: [pages/**/*.tsx, components/**/*.tsx]
+generates:
+  api/introspection.json:
+    plugins:
+      - introspection
+  api/api.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - add:
+          content: "/* eslint-disable */"
+config:
+  scalars:
+    Date: string
