@@ -1,8 +1,16 @@
-import { gql, useQuery } from "@apollo/client";
-import { AppBar, Toolbar, styled } from "@mui/material";
-import type { NextPage } from "next";
+import {
+  AppBar,
+  styled,
+  Toolbar,
+  Typography,
+  Drawer,
+  List,
+  ListItem,
+  Box,
+  ListItemText,
+} from "@mui/material";
+import Link from "next/link";
 import React from "react";
-import { GetCapsulesQuery } from "../api/api";
 
 const Offset = styled("div")(({ theme }) => theme.mixins.toolbar);
 
@@ -10,13 +18,18 @@ type Props = React.PropsWithChildren<{}>;
 
 export function Layout({ children }: Props) {
   return (
-    <div>
+    <Box>
       <AppBar position="fixed">
-        <Toolbar>SpaceXplorer</Toolbar>
+        <Toolbar>
+          <Link href="/" passHref>
+            <Typography>SpaceXplorer</Typography>
+          </Link>
+        </Toolbar>
       </AppBar>
+
       <Offset />
 
       <main>{children}</main>
-    </div>
+    </Box>
   );
 }
