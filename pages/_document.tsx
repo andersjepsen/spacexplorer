@@ -1,4 +1,9 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
+import { styled } from "@mui/material";
+
+const Body = styled("body")(({ theme }) => ({
+  backgroundColor: theme.palette.grey[100],
+}));
 
 class MyDocument extends Document {
   render() {
@@ -10,10 +15,10 @@ class MyDocument extends Document {
             rel="stylesheet"
           />
         </Head>
-        <body>
+        <Body>
           <Main />
           <NextScript />
-        </body>
+        </Body>
       </Html>
     );
   }
