@@ -1318,9 +1318,33 @@ export type Uuid_Comparison_Exp = {
   _nin?: InputMaybe<Array<Scalars['uuid']>>;
 };
 
-export type UpcomingLaunchesFragment = { __typename?: 'Query', launchesUpcoming?: Array<{ __typename?: 'Launch', id?: string | null | undefined, launch_date_utc?: string | null | undefined } | null | undefined> | null | undefined };
+export type LaunchCardFragment = { __typename?: 'Launch', id?: string | null | undefined, mission_name?: string | null | undefined, launch_date_utc?: string | null | undefined, links?: { __typename?: 'LaunchLinks', mission_patch_small?: string | null | undefined, flickr_images?: Array<string | null | undefined> | null | undefined } | null | undefined };
 
-export type GetCapsulesQueryVariables = Exact<{ [key: string]: never; }>;
+export type UpcomingLaunchesFragment = { __typename?: 'Query', launchesUpcoming?: Array<{ __typename?: 'Launch', launch_date_utc?: string | null | undefined, mission_id?: Array<string | null | undefined> | null | undefined, mission_name?: string | null | undefined } | null | undefined> | null | undefined };
+
+export type GetLaunchesQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+}>;
 
 
-export type GetCapsulesQuery = { __typename?: 'Query', capsules?: Array<{ __typename?: 'Capsule', id?: string | null | undefined, type?: string | null | undefined } | null | undefined> | null | undefined, launchesUpcoming?: Array<{ __typename?: 'Launch', id?: string | null | undefined, launch_date_utc?: string | null | undefined } | null | undefined> | null | undefined };
+export type GetLaunchesQuery = { __typename?: 'Query', launches?: Array<{ __typename?: 'Launch', id?: string | null | undefined, mission_name?: string | null | undefined, launch_date_utc?: string | null | undefined, links?: { __typename?: 'LaunchLinks', mission_patch_small?: string | null | undefined, flickr_images?: Array<string | null | undefined> | null | undefined } | null | undefined } | null | undefined> | null | undefined };
+
+export type GetLaunchQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetLaunchQuery = { __typename?: 'Query', launch?: { __typename?: 'Launch', id?: string | null | undefined, details?: string | null | undefined, mission_name?: string | null | undefined, launch_date_utc?: string | null | undefined, links?: { __typename?: 'LaunchLinks', mission_patch_small?: string | null | undefined, flickr_images?: Array<string | null | undefined> | null | undefined } | null | undefined } | null | undefined };
+
+export type GetMissionQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetMissionQuery = { __typename?: 'Query', mission?: { __typename?: 'Mission', id?: string | null | undefined, name?: string | null | undefined, description?: string | null | undefined, manufacturers?: Array<string | null | undefined> | null | undefined, twitter?: string | null | undefined, website?: string | null | undefined, wikipedia?: string | null | undefined, payloads?: Array<{ __typename?: 'Payload', id?: string | null | undefined, manufacturer?: string | null | undefined } | null | undefined> | null | undefined } | null | undefined };
+
+export type GetMissionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetMissionsQuery = { __typename?: 'Query', missions?: Array<{ __typename?: 'Mission', id?: string | null | undefined, name?: string | null | undefined } | null | undefined> | null | undefined };
