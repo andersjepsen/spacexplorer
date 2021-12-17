@@ -2,7 +2,6 @@ import { gql } from "@apollo/client";
 import { Avatar, Card, CardHeader, CardMedia } from "@mui/material";
 import React from "react";
 import { LaunchCardFragment } from "../api/api";
-import { format } from "date-fns";
 type Props = {
   launch: LaunchCardFragment;
 };
@@ -20,7 +19,7 @@ export function LaunchCard({ launch }: Props) {
         title={launch.mission_name}
         subheader={
           launch.launch_date_utc &&
-          format(new Date(launch.launch_date_utc), "Pp")
+          new Date(launch.launch_date_utc).toLocaleString()
         }
       />
       <CardMedia

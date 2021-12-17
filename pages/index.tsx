@@ -51,7 +51,10 @@ const Home: NextPage = () => {
             </Grid>
             {launches.map((launch) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={launch.id}>
-                <Link href={`/launches/${launch.id}`} passHref>
+                <Link
+                  href={`/launches/${encodeURIComponent(launch.id ?? "")}`}
+                  passHref
+                >
                   <MuiLink variant="inherit" underline="none">
                     <LaunchCard launch={launch} />
                   </MuiLink>
