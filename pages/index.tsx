@@ -1,34 +1,81 @@
 import { gql, useQuery } from "@apollo/client";
-import { styled } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
+import {
+  Alert,
+  Box,
+  Grid,
+  LinearProgress,
+  Link as MuiLink,
+  Typography,
+} from "@mui/material";
 import type { NextPage } from "next";
-import { GetCapsulesQuery } from "../api/api";
-import { Layout } from "../ui/Layout";
-import { UpcomingLaunches } from "../components/UpcomingLaunches";
+import Link from "next/link";
+import { GetLaunchesQuery, GetLaunchesQueryVariables } from "../api/api";
+import { LaunchCard } from "../components/LaunchCard";
+import { useList } from "../hooks/useList";
+import { Container } from "../ui";
 
-const GET_CAPSULES = gql`
-  query GetCapsules {
-    capsules(limit: 10) {
+const GET_LAUNCHES = gql`
+  query GetLaunches($limit: Int, $offset: Int) {
+    launches(limit: $limit, offset: $offset) {
       id
-      type
+      ...LaunchCard
     }
-    ...UpcomingLaunches
   }
-  ${UpcomingLaunches.fragments.query}
+  ${LaunchCard.fragments.launch}
 `;
 
-const Offset = styled("div")(({ theme }) => theme.mixins.toolbar);
-
 const Home: NextPage = () => {
-  const { data } = useQuery<GetCapsulesQuery>(GET_CAPSULES);
+  const { data, error, loading, fetchMore } = useQuery<
+    GetLaunchesQuery,
+    GetLaunchesQueryVariables
+  >(GET_LAUNCHES, {
+    variables: { limit: 12, offset: 0 },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const launches = useList(data?.launches);
+
+  if (error) {
+    return <Alert severity="error">Something went wrong!</Alert>;
+  }
+
   return (
-    <Layout>
-      {data && <UpcomingLaunches query={data} />}
-      {data?.capsules?.map((capsule) => (
-        <p key={capsule?.id ?? ""}>
-          {capsule?.id} {capsule?.type}
-        </p>
-      ))}
-    </Layout>
+    <>
+      {loading && <LinearProgress />}
+      {data && (
+        <Container>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant="h4">Launches</Typography>
+            </Grid>
+            {launches.map((launch) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={launch.id}>
+                <Link href={`/launches/${launch.id}`} passHref>
+                  <MuiLink variant="inherit" underline="none">
+                    <LaunchCard launch={launch} />
+                  </MuiLink>
+                </Link>
+              </Grid>
+            ))}
+            <Grid item xs={12}>
+              <Box display="flex" justifyContent="center" alignItems="center">
+                <LoadingButton
+                  color="primary"
+                  variant="contained"
+                  loading={loading}
+                  onClick={() =>
+                    fetchMore({ variables: { offset: launches.length } })
+                  }
+                >
+                  Load more
+                </LoadingButton>
+              </Box>
+            </Grid>
+          </Grid>
+        </Container>
+      )}
+    </>
   );
 };
 
