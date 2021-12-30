@@ -37,6 +37,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return addApolloState(client, {
     props: {},
+    revalidate: 43200, // 12 hours (60*60*12)
   });
 };
 
@@ -56,43 +57,39 @@ const Home: NextPage = () => {
   }
 
   return (
-    <>
-      {loading && <LinearProgress />}
-
-      <Container>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Typography variant="h4">Launches</Typography>
-          </Grid>
-          {launches.map((launch) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={launch.id}>
-              <Link
-                href={`/launches/${encodeURIComponent(launch.id ?? "")}`}
-                passHref
-              >
-                <MuiLink variant="inherit" underline="none">
-                  <LaunchCard launch={launch} />
-                </MuiLink>
-              </Link>
-            </Grid>
-          ))}
-          <Grid item xs={12}>
-            <Box display="flex" justifyContent="center" alignItems="center">
-              <LoadingButton
-                color="primary"
-                variant="contained"
-                loading={loading}
-                onClick={() =>
-                  fetchMore({ variables: { offset: launches.length } })
-                }
-              >
-                Load more
-              </LoadingButton>
-            </Box>
-          </Grid>
+    <Container>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Typography variant="h4">Launches</Typography>
         </Grid>
-      </Container>
-    </>
+        {launches.map((launch) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={launch.id}>
+            <Link
+              href={`/launches/${encodeURIComponent(launch.id ?? "")}`}
+              passHref
+            >
+              <MuiLink variant="inherit" underline="none">
+                <LaunchCard launch={launch} />
+              </MuiLink>
+            </Link>
+          </Grid>
+        ))}
+        <Grid item xs={12}>
+          <Box display="flex" justifyContent="center" alignItems="center">
+            <LoadingButton
+              color="primary"
+              variant="contained"
+              loading={loading}
+              onClick={() =>
+                fetchMore({ variables: { offset: launches.length } })
+              }
+            >
+              Load more
+            </LoadingButton>
+          </Box>
+        </Grid>
+      </Grid>
+    </Container>
   );
 };
 

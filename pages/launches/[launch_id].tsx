@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
 import {
   Avatar,
   Card,
@@ -11,14 +11,19 @@ import {
   LinearProgress,
   Typography,
 } from "@mui/material";
-import type { NextPage } from "next";
-import { useRouter } from "next/router";
-import { GetLaunchQuery, GetLaunchQueryVariables } from "../../api/api";
-import { useList } from "../../hooks";
-import { useQueryParam } from "../../hooks/useQueryParam";
-import { Container } from "../../ui";
-import { useMemo } from "react";
+import type {
+  GetStaticPaths,
+  GetStaticProps,
+  InferGetStaticPropsType,
+  NextPage,
+} from "next";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { Fragment, useMemo } from "react";
+import { GetLaunchQuery, GetLaunchQueryVariables } from "../../api/api";
+import { initializeApollo } from "../../apollo.client";
+import { useList } from "../../hooks";
+import { Container } from "../../ui";
 
 const GET_LAUNCH = gql`
   query GetLaunch($id: ID!) {
@@ -43,16 +48,39 @@ const GET_LAUNCH = gql`
   }
 `;
 
-const MissionPage: NextPage = () => {
-  const router = useRouter();
+export const getStaticProps: GetStaticProps<{ data: GetLaunchQuery }> = async (
+  context
+) => {
+  const client = initializeApollo();
 
-  const id = useQueryParam(router.query.launch_id);
-  const { data, loading, error } = useQuery<
-    GetLaunchQuery,
-    GetLaunchQueryVariables
-  >(GET_LAUNCH, {
-    variables: { id },
+  const id =
+    typeof context.params?.launch_id === "string"
+      ? context.params.launch_id
+      : "";
+
+  const { data } = await client.query<GetLaunchQuery, GetLaunchQueryVariables>({
+    query: GET_LAUNCH,
+    variables: {
+      id,
+    },
   });
+
+  return {
+    props: {
+      data: data,
+    },
+    revalidate: 43200, // 12 hours (60*60*12)
+  };
+};
+
+export const getStaticPaths: GetStaticPaths = () => {
+  return { paths: [], fallback: "blocking" };
+};
+
+const LaunchPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
+  data,
+}) => {
+  const router = useRouter();
 
   const flickrImages = useList(data?.launch?.links?.flickr_images);
 
@@ -62,7 +90,7 @@ const MissionPage: NextPage = () => {
     );
   }, [data]);
 
-  if (loading) {
+  if (router.isFallback) {
     return <LinearProgress />;
   }
 
@@ -116,18 +144,15 @@ const MissionPage: NextPage = () => {
                     {missionNames.map((missionName, i) => {
                       const missionId = data?.launch?.mission_id?.[i];
                       return (
-                        <>
+                        <Fragment key={missionName}>
                           {missionId ? (
-                            <Link
-                              key={missionName}
-                              href={`/missions/${missionId}`}
-                            >
+                            <Link href={`/missions/${missionId}`}>
                               {missionName}
                             </Link>
                           ) : (
                             missionName
                           )}{" "}
-                        </>
+                        </Fragment>
                       );
                     })}
                   </Typography>
@@ -156,4 +181,4 @@ const MissionPage: NextPage = () => {
   );
 };
 
-export default MissionPage;
+export default LaunchPage;
