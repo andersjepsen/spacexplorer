@@ -10,7 +10,7 @@ import { offsetLimitPagination } from "@apollo/client/utilities";
 import { withScalars } from "apollo-link-scalars";
 import merge from "deepmerge";
 import { buildClientSchema, IntrospectionQuery } from "graphql";
-import isEqual from "lodash.isEqual";
+import isEqual from "lodash.isequal";
 import { useMemo } from "react";
 import introspection from "./api/introspection.json";
 
