@@ -48,9 +48,9 @@ const GET_LAUNCH = gql`
   }
 `;
 
-export const getStaticProps: GetStaticProps<{ data: GetLaunchQuery }> = async (
-  context
-) => {
+export const getStaticProps: GetStaticProps<{
+  launch: GetLaunchQuery["launch"];
+}> = async (context) => {
   const client = initializeApollo();
 
   const id =
@@ -65,30 +65,34 @@ export const getStaticProps: GetStaticProps<{ data: GetLaunchQuery }> = async (
     },
   });
 
+  if (!data.launch) {
+    return {
+      notFound: true,
+    };
+  }
+
   return {
     props: {
-      data: data,
+      launch: data.launch,
     },
     revalidate: 43200, // 12 hours (60*60*12)
   };
 };
 
 export const getStaticPaths: GetStaticPaths = () => {
-  return { paths: [], fallback: "blocking" };
+  return { paths: [], fallback: true };
 };
 
 const LaunchPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
-  data,
+  launch,
 }) => {
   const router = useRouter();
 
-  const flickrImages = useList(data?.launch?.links?.flickr_images);
+  const flickrImages = useList(launch?.links?.flickr_images);
 
   const missionNames = useMemo(() => {
-    return (
-      data?.launch?.mission_name?.split("/").map((name) => name.trim()) ?? []
-    );
-  }, [data]);
+    return launch?.mission_name?.split("/").map((name) => name.trim()) ?? [];
+  }, [launch]);
 
   if (router.isFallback) {
     return <LinearProgress />;
@@ -101,12 +105,12 @@ const LaunchPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
           <Grid container spacing={2}>
             <Grid item>
               <Avatar
-                aria-label={`${data?.launch?.mission_name} mission patch}`}
-                src={data?.launch?.links?.mission_patch_small ?? undefined}
+                aria-label={`${launch?.mission_name} mission patch}`}
+                src={launch?.links?.mission_patch_small ?? undefined}
               />
             </Grid>
             <Grid item xs>
-              <Typography variant="h4">{data?.launch?.mission_name}</Typography>
+              <Typography variant="h4">{launch?.mission_name}</Typography>
             </Grid>
           </Grid>
         </Grid>
@@ -118,7 +122,7 @@ const LaunchPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                 <CardHeader title="Details" />
                 <CardContent>
                   <Typography>
-                    {data?.launch?.details ?? `No details available`}
+                    {launch?.details ?? `No details available`}
                   </Typography>
                 </CardContent>
               </Card>
@@ -126,23 +130,21 @@ const LaunchPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
             <Grid item xs={12}>
               <Card>
                 <CardContent>
-                  {data?.launch?.launch_date_utc && (
+                  {launch?.launch_date_utc && (
                     <Typography>
                       Launch date:{" "}
-                      {new Date(data.launch.launch_date_utc).toLocaleString()}
+                      {new Date(launch.launch_date_utc).toLocaleString()}
                     </Typography>
                   )}
+                  <Typography>Rocket: {launch?.rocket?.rocket_name}</Typography>
                   <Typography>
-                    Rocket: {data?.launch?.rocket?.rocket_name}
-                  </Typography>
-                  <Typography>
-                    Launch site: {data?.launch?.launch_site?.site_name}
+                    Launch site: {launch?.launch_site?.site_name}
                   </Typography>
 
                   <Typography>
                     Mission(s):{" "}
                     {missionNames.map((missionName, i) => {
-                      const missionId = data?.launch?.mission_id?.[i];
+                      const missionId = launch?.mission_id?.[i];
                       return (
                         <Fragment key={missionName}>
                           {missionId ? (
